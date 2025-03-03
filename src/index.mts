@@ -10,7 +10,7 @@ const defineTag = (name: string, tag: Tag) => {
 };
 
 defineTag('buttplug_start', {
-	async start(pm: Record<string, any>) {
+	async start(pm: Record<string, string>) {
 		try {
 			log('buttplug tag start:', pm);
 			for (const device of buttplugClient.devices) {
@@ -26,9 +26,9 @@ defineTag('buttplug_start', {
 				await device.rotate(rotateFeatures.map(() => [0, true]));
 			}
 		} catch (error) {
-			log('Error:', error);
+			log('error:', error);
 		} finally {
-			TYRANO.kag.ftag.nextOrder();
+			window.TYRANO.kag.ftag.nextOrder();
 		}
 	},
 	vital: [],
