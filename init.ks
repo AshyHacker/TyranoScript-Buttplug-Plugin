@@ -1,3 +1,3 @@
-[loadjs storage="plugin/buttplug/dist/index.mjs"]
+[loadjs storage="plugin/buttplug/dist/index.js"]
 
 [return]
