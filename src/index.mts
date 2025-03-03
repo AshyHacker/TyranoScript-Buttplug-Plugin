@@ -2,10 +2,10 @@ import {
 	ButtplugClient,
 	ButtplugBrowserWebsocketClientConnector,
 } from 'buttplug';
+import log from './log.mjs';
 
-const log = (msg: string, data: any = null) => {
-	console.log(`[buttplug] ${msg}`, ...(data ? [data] : []));
-};
+type ValueOf<T> = T[keyof T];
+type Tag = ValueOf<typeof window.TYRANO.kag.ftag.master_tag>;
 
 log('buttplug plugin loading...');
 
@@ -27,5 +27,20 @@ buttplugClient.connect(connector).then(() => {
 });
 
 log('buttplug plugin loaded');
+log('defined tags:', Object.keys(window.TYRANO.kag.ftag.master_tag));
+
+const defineTag = (name: string, tag: Tag) => {
+	log('defining tag:', name);
+	window.TYRANO.kag.ftag.master_tag[name] = tag;
+};
+
+defineTag('buttplug_start', {
+	start(pm: Record<string, any>) {
+		log('buttplug tag start:', pm);
+		TYRANO.kag.ftag.nextOrder();
+	},
+	vital: [],
+	pm: {},
+});
 
 export default log;
