@@ -27,7 +27,7 @@
 
 ; [buttplug_start_csv: デバイスにCSVパターンを送信する]
 
-[buttplug_start_csv groups="乳首(回転・左右別)" devices="" storage="scene1_ufotw.csv" repeat="true"]
+[buttplug_start_csv devices="Vorze UFO TW" storage="scene1_ufotw.csv"]
 
 
 ; [buttplug_stop: デバイスの動作を停止する]
