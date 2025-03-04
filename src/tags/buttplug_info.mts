@@ -1,4 +1,4 @@
-import {ButtplugClientDevice} from 'buttplug';
+import type {ButtplugClientDevice} from 'buttplug';
 import buttplug from '../buttplug.mjs';
 import log from '../log.mjs';
 import {defineTag, invalidParameterError} from '../utils.mjs';
@@ -55,6 +55,9 @@ defineTag('buttplug_info', {
 			[
 				'<div class="buttplug__info">',
 				'  <div class="buttplug__info_body">',
+				'    <div class="buttplug__info_status">',
+				'      接続状態: <span class="buttplug__info_status_text"></span>',
+				'    </div>',
 				'    <div class="buttplug__info_device_count_statement">',
 				'      接続されているButtplugデバイス:',
 				'      <span class="buttplug__info_device_count">0</span>',
@@ -73,9 +76,34 @@ defineTag('buttplug_info', {
 
 		$layer.append($info);
 
+		const $status = $info.find('.buttplug__info_status_text');
 		const $deviceCount = $info.find('.buttplug__info_device_count');
 		const $devices = $info.find('.buttplug__info_devices');
 		const deviceMap = new Map<number, JQuery<HTMLElement>>();
+
+		$status.addClass('buttplug__info_status_text_disconnected');
+		if (buttplug.connected) {
+			$status.text('接続中');
+			$status.removeClass('buttplug__info_status_text_disconnected');
+		} else {
+			$status.text('未接続');
+			$status.addClass('buttplug__info_status_text_disconnected');
+		}
+
+		buttplug.on('disconnect', () => {
+			log('buttplug_info: disconnect');
+			$status.text('未接続');
+			$status.addClass('buttplug__info_status_text_disconnected');
+			$deviceCount.text('0');
+			$devices.empty();
+			deviceMap.clear();
+		});
+
+		buttplug.on('connect', () => {
+			log('buttplug_info: connect');
+			$status.text('接続中');
+			$status.removeClass('buttplug__info_status_text_disconnected');
+		});
 
 		for (const device of buttplug.devices) {
 			const $device = $('<li class="buttplug__info_device"></li>');
@@ -86,6 +114,9 @@ defineTag('buttplug_info', {
 		}
 
 		buttplug.on('deviceadded', (device: ButtplugClientDevice) => {
+			if (deviceMap.has(device.index)) {
+				return;
+			}
 			const $device = $('<li class="buttplug__info_device"></li>');
 			$device.text(device.name);
 			$devices.append($device);
