@@ -92,3 +92,11 @@
 - `all_xxx`: `xxx` の動作を行うデバイスをすべて指定します。以下の値が有効です。
   - `all_vibrate` `all_rotate` `all_oscillate` `all_constrict` `all_inflate` `all_position` `all_battery` `all_rssi` `all_pressure`
 - `all`: すべてのデバイスを指定します。
+
+## 免責事項
+
+このプラグインは Buttplug の Websocket サーバと通信するためのプラグインです。Buttplug およびこのプラグインの開発者このプラグインについて一切の責任を負いません。このプラグインを使用する際は、自己責任でお願いします。
+
+## ライセンス
+
+このプラグインは MIT ライセンスの元で公開されています。詳細は LICENSE ファイルを参照してください。
