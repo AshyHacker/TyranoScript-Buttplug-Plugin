@@ -1,0 +1,8 @@
+.buttplug__info {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 1.5em;
+  padding: 1em;
+  box-sizing: border-box;
+  z-index: 1000;
+}

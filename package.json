@@ -18,6 +18,7 @@
 		"@rollup/plugin-commonjs": "^28.0.2",
 		"@rollup/plugin-node-resolve": "^16.0.0",
 		"@rollup/plugin-typescript": "^12.1.2",
+		"@types/jquery": "^3.5.32",
 		"buttplug": "^3.2.2",
 		"rollup": "^4.34.9",
 		"rollup-plugin-node-builtins": "^2.1.2",
