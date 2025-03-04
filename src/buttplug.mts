@@ -31,6 +31,10 @@ class ButtplugManager {
 	get devices() {
 		return this.#client.devices;
 	}
+
+	on(eventName: string, listener: (...args: any[]) => void) {
+		this.#client.addListener(eventName, listener);
+	}
 }
 
 const buttplug = new ButtplugManager();

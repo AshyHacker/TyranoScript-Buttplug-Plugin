@@ -1,8 +1,18 @@
 .buttplug__info {
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
-  font-size: 1.5em;
+  font-size: 1em;
   padding: 1em;
   box-sizing: border-box;
   z-index: 1000;
+  overflow: hidden;
+}
+
+ul.buttplug__info_devices {
+  list-style-type: square;
+  padding-left: 1em;
+}
+
+li.buttplug__info_device {
+  margin: 0;
 }
