@@ -1,5 +1,5 @@
 import type {ButtplugClientDevice} from 'buttplug';
-import buttplug from '../buttplug.mjs';
+import buttplug from '../buttplugManager.mjs';
 import log from '../log.mjs';
 import {defineTag, invalidParameterError} from '../utils.mjs';
 import type JQuery from 'jquery';
@@ -153,7 +153,7 @@ defineTag('buttplug_info', {
 		});
 
 		try {
-			log('[buttplug_info] tag start:', pm);
+			log('buttplug_info: tag start:', pm);
 		} catch (error) {
 			log('error:', error);
 		} finally {

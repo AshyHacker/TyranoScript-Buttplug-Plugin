@@ -1,5 +1,5 @@
 import originalLog from '../log.mjs';
-import buttplug from '../buttplug.mjs';
+import buttplug from '../buttplugManager.mjs';
 import {defineTag, invalidParameterError} from '../utils.mjs';
 
 // biome-ignore lint/suspicious/noExplicitAny: Arbitrary data is expected here

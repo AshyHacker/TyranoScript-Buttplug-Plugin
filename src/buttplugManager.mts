@@ -14,7 +14,7 @@ import {
 import log from './log.mjs';
 import {getMatchingFeatures, assert} from './utils.mjs';
 
-interface MotionCommand {
+export interface MotionCommand {
 	speed?: number;
 	clockwise?: boolean;
 	position?: number;
@@ -25,6 +25,15 @@ interface MotionCommand {
 class ButtplugManager {
 	#client: ButtplugClient;
 	#connector: ButtplugBrowserWebsocketClientConnector;
+
+	// singleton
+	static #instance: ButtplugManager | null = null;
+	static get instance() {
+		if (ButtplugManager.#instance === null) {
+			ButtplugManager.#instance = new ButtplugManager();
+		}
+		return ButtplugManager.#instance;
+	}
 
 	constructor() {
 		this.log('initializing...');
@@ -75,7 +84,7 @@ class ButtplugManager {
 		const value = command.value ?? 0;
 
 		const matchingFeatures = getMatchingFeatures(
-			buttplug.devices,
+			this.#client.devices,
 			devicesString,
 		);
 		this.log('matchingFeatures:', matchingFeatures);
@@ -135,7 +144,7 @@ class ButtplugManager {
 	}
 
 	private async onDisconnected() {
-		this.log('disconnected');
+		this.log('disconnected from Buttplug server');
 		await this.startConnectionLoop();
 	}
 
@@ -156,12 +165,10 @@ class ButtplugManager {
 	private async connect() {
 		await this.#client.connect(this.#connector);
 
-		this.log('connected');
+		this.log('connected to Buttplug server');
 		this.#client.emit('connect');
 		this.#client.startScanning();
 	}
 }
 
-const buttplug = new ButtplugManager();
-
-export default buttplug;
+export default ButtplugManager.instance;
