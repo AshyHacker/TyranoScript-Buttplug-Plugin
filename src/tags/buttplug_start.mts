@@ -7,7 +7,6 @@ import {
 	assert,
 } from '../utils.mjs';
 import {
-	ActuatorType,
 	LinearCmd,
 	RotateCmd,
 	RotateSubcommand,
