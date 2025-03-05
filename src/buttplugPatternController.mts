@@ -1,12 +1,4 @@
 import log from './log.mjs';
-import type {MotionCommand} from './buttplugManager.mjs';
-
-export interface PatternData {
-	frames: {
-		timestamp: number;
-		commands: MotionCommand[];
-	}[];
-}
 
 class ButtplugPatternController {
 	// singleton

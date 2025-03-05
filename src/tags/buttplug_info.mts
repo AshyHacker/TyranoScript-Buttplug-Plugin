@@ -131,9 +131,11 @@ defineTag('buttplug_info', {
 			$status.removeClass('buttplug__info_status_text_disconnected');
 		});
 
-		for (const device of buttplug.devices) {
-			log('device:', device);
-			addDeviceToList(device);
+		if (buttplug.connected) {
+			for (const device of buttplug.devices) {
+				log('device:', device);
+				addDeviceToList(device);
+			}
 		}
 
 		buttplug.on('deviceadded', (device: ButtplugClientDevice) => {
