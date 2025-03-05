@@ -1,19 +1,6 @@
 import originalLog from '../log.mjs';
 import buttplug from '../buttplug.mjs';
-import {
-	defineTag,
-	getMatchingFeatures,
-	invalidParameterError,
-	assert,
-} from '../utils.mjs';
-import {
-	LinearCmd,
-	RotateCmd,
-	RotateSubcommand,
-	ScalarCmd,
-	ScalarSubcommand,
-	VectorSubcommand,
-} from 'buttplug';
+import {defineTag, invalidParameterError} from '../utils.mjs';
 
 // biome-ignore lint/suspicious/noExplicitAny: Arbitrary data is expected here
 const log = (msg: string, data: any = null) => {
@@ -69,59 +56,13 @@ defineTag('buttplug_start', {
 			const clockwise = params.direction === '0';
 
 			if (params.devices !== '') {
-				const matchingFeatures = getMatchingFeatures(
-					buttplug.devices,
-					params.devices,
-				);
-				log('matchingFeatures:', matchingFeatures);
-
-				for (const [device, messageType, commandIndexes] of matchingFeatures) {
-					log('starting device:', device);
-
-					switch (messageType) {
-						case 'rotate': {
-							const message = new RotateCmd(
-								commandIndexes.map(
-									(index) => new RotateSubcommand(index, speed, clockwise),
-								),
-								device.index,
-							);
-							log('sending message:', message);
-							device.send(message);
-							break;
-						}
-						case 'linear': {
-							const message = new LinearCmd(
-								commandIndexes.map(
-									(index) => new VectorSubcommand(index, position, duration),
-								),
-								device.index,
-							);
-							log('sending message:', message);
-							device.send(message);
-							break;
-						}
-						case 'scalar': {
-							const message = new ScalarCmd(
-								commandIndexes.map((index) => {
-									const actuatorType = device.messageAttributes.ScalarCmd?.find(
-										(attribute) => attribute.Index === index,
-									)?.ActuatorType;
-									assert(actuatorType !== undefined);
-									return new ScalarSubcommand(index, value, actuatorType);
-								}),
-								device.index,
-							);
-							log('sending message:', message);
-							device.send(message);
-							break;
-						}
-						default: {
-							log('unknown messageType:', messageType);
-							break;
-						}
-					}
-				}
+				buttplug.sendCommand(params.devices, {
+					speed,
+					clockwise,
+					position,
+					duration,
+					value,
+				});
 			}
 		} catch (error) {
 			log('error:', error);

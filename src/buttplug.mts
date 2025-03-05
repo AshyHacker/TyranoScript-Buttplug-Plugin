@@ -3,9 +3,24 @@ import {
 	ButtplugBrowserWebsocketClientConnector,
 	ButtplugLogger,
 	ButtplugLogLevel,
-	LogMessage,
+	type LogMessage,
+	LinearCmd,
+	RotateCmd,
+	RotateSubcommand,
+	ScalarCmd,
+	ScalarSubcommand,
+	VectorSubcommand,
 } from 'buttplug';
 import log from './log.mjs';
+import {getMatchingFeatures, assert} from './utils.mjs';
+
+interface MotionCommand {
+	speed?: number;
+	clockwise?: boolean;
+	position?: number;
+	duration?: number;
+	value?: number;
+}
 
 class ButtplugManager {
 	#client: ButtplugClient;
@@ -52,6 +67,68 @@ class ButtplugManager {
 		this.#client.addListener(eventName, listener);
 	}
 
+	sendCommand(devicesString: string, command: MotionCommand) {
+		const speed = command.speed ?? 0;
+		const clockwise = command.clockwise ?? true;
+		const position = command.position ?? 0;
+		const duration = command.duration ?? 0;
+		const value = command.value ?? 0;
+
+		const matchingFeatures = getMatchingFeatures(
+			buttplug.devices,
+			devicesString,
+		);
+		this.log('matchingFeatures:', matchingFeatures);
+
+		for (const [device, messageType, commandIndexes] of matchingFeatures) {
+			this.log('starting device:', device);
+
+			switch (messageType) {
+				case 'rotate': {
+					const message = new RotateCmd(
+						commandIndexes.map(
+							(index) => new RotateSubcommand(index, speed, clockwise),
+						),
+						device.index,
+					);
+					this.log('sending message:', message);
+					device.send(message);
+					break;
+				}
+				case 'linear': {
+					const message = new LinearCmd(
+						commandIndexes.map(
+							(index) => new VectorSubcommand(index, position, duration),
+						),
+						device.index,
+					);
+					this.log('sending message:', message);
+					device.send(message);
+					break;
+				}
+				case 'scalar': {
+					const message = new ScalarCmd(
+						commandIndexes.map((index) => {
+							const actuatorType = device.messageAttributes.ScalarCmd?.find(
+								(attribute) => attribute.Index === index,
+							)?.ActuatorType;
+							assert(actuatorType !== undefined);
+							return new ScalarSubcommand(index, value, actuatorType);
+						}),
+						device.index,
+					);
+					this.log('sending message:', message);
+					device.send(message);
+					break;
+				}
+				default: {
+					this.log('unknown messageType:', messageType);
+					break;
+				}
+			}
+		}
+	}
+
 	// biome-ignore lint/suspicious/noExplicitAny: data
 	private log(text: string, data: any = null) {
 		log(`ButtplugManager: ${text}`, data);
@@ -81,7 +158,7 @@ class ButtplugManager {
 
 		this.log('connected');
 		this.#client.emit('connect');
-		await this.#client.startScanning();
+		this.#client.startScanning();
 	}
 }
 
