@@ -1,6 +1,9 @@
 import {
 	ButtplugClient,
 	ButtplugBrowserWebsocketClientConnector,
+	ButtplugLogger,
+	ButtplugLogLevel,
+	LogMessage,
 } from 'buttplug';
 import log from './log.mjs';
 
@@ -26,6 +29,11 @@ class ButtplugManager {
 
 		this.#client.addListener('disconnect', () => {
 			this.onDisconnected();
+		});
+
+		ButtplugLogger.Logger.MaximumEventLogLevel = ButtplugLogLevel.Trace;
+		ButtplugLogger.Logger.addListener('log', (msg: LogMessage) => {
+			log(msg.Message, msg);
 		});
 
 		this.startConnectionLoop();
