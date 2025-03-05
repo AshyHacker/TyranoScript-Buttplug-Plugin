@@ -116,9 +116,10 @@ defineTag('buttplug_start', {
 							device.send(message);
 							break;
 						}
-						default:
+						default: {
 							log('unknown messageType:', messageType);
 							break;
+						}
 					}
 				}
 			}
