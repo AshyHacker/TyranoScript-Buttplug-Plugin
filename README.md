@@ -16,13 +16,13 @@
 ; 複数デバイスを指定する
 [buttplug_start devices="Vorze UFO SA,Vorze UFO TW" speed="20" direction="1"]
 
-; デバイスが複数のfeatureを持つ場合、「#」を用いて特定のfeatureを指定することができます
-; 「#」の後に数字を記述すると、その数字に対応するfeatureが選択されます
-[buttplug_start devices="Vorze UFO TW#0" speed="20" direction="1"]
-; 「#」の後に動作の名称を記述すると、その名称に対応するfeatureが選択されます
-[buttplug_start devices="Vorze UFO TW#rotate" speed="20" direction="1"]
+; デバイスが複数のfeatureを持つ場合、「:」を用いて特定のfeatureを指定することができます
+; 「:」の後に数字を記述すると、その数字に対応するfeatureが選択されます
+[buttplug_start devices="Vorze UFO TW:1" speed="20" direction="1"]
+; 「:」の後に動作の名称を記述すると、その名称に対応するfeatureが選択されます
+[buttplug_start devices="Vorze UFO TW:rotate" speed="20" direction="1"]
 ; 上の2つを組み合わせると、特定の種類の特定のfeatureを指定できます
-[buttplug_start devices="Vorze UFO TW#rotate0" speed="20" direction="1"]
+[buttplug_start devices="Vorze UFO TW:rotate1" speed="20" direction="1"]
 
 
 ; [buttplug_start_csv: デバイスにCSVパターンを送信する]
@@ -46,8 +46,8 @@
 [buttplug_group name="乳首(回転)" devices="Vorze UFO SA"]
 [buttplug_group name="乳首(振動・左右別)" devices=""]
 [buttplug_group name="乳首(振動)" devices=""]
-[buttplug_group name="ペニス(回転)" devices="Vorze A10 Cyclone SA,Syncbot#rotate,ungrouped_rotate"]
-[buttplug_group name="ペニス(ピストン)" devices="Vorze Piston,Syncbot#position,ungrouped_position"]
+[buttplug_group name="ペニス(回転)" devices="Vorze A10 Cyclone SA,Syncbot:rotate,ungrouped_rotate"]
+[buttplug_group name="ペニス(ピストン)" devices="Vorze Piston,Syncbot:position,ungrouped_position"]
 [buttplug_group name="ペニス(振動)" devices="Vorze Bach,ungrouped_vibrate"]
 
 
@@ -86,11 +86,13 @@
 
 ### 特殊なデバイス名
 
+以下の特殊なデバイス名を指定することで、特定のデバイスを指定することができます。なお、これらのデバイス名に対する「:」を用いた feature の指定は無効です。
+
 - `ungrouped_xxx`: `xxx` の動作を行うデバイスのうち、いずれのグループにも属していないデバイスを指定します。以下の値が有効です。
-  - `ungrouped_vibrate` `ungrouped_rotate` `ungrouped_oscillate` `ungrouped_constrict` `ungrouped_inflate` `ungrouped_position` `ungrouped_battery` `ungrouped_rssi` `ungrouped_pressure`
+  - `ungrouped_vibrate` `ungrouped_rotate` `ungrouped_oscillate` `ungrouped_constrict` `ungrouped_inflate` `ungrouped_position`
 - `ungrouped`: いずれのグループにも属しておらず、また `ungrouped_xxx` の形で指定されてもいないデバイスを指定します。
 - `all_xxx`: `xxx` の動作を行うデバイスをすべて指定します。以下の値が有効です。
-  - `all_vibrate` `all_rotate` `all_oscillate` `all_constrict` `all_inflate` `all_position` `all_battery` `all_rssi` `all_pressure`
+  - `all_vibrate` `all_rotate` `all_oscillate` `all_constrict` `all_inflate` `all_position`
 - `all`: すべてのデバイスを指定します。
 
 ## 免責事項
@@ -99,4 +101,4 @@
 
 ## ライセンス
 
-このプラグインは MIT ライセンスの元で公開されています。詳細は LICENSE ファイルを参照してください。
+このプラグインは Apache License 2.0 の下で公開されています。詳しくは LICENSE を参照してください。
