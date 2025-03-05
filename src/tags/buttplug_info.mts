@@ -1,53 +1,53 @@
-import type { ButtplugClientDevice } from "buttplug";
-import buttplug from "../buttplug.mjs";
-import log from "../log.mjs";
-import { defineTag, invalidParameterError } from "../utils.mjs";
-import type JQuery from "jquery";
+import type {ButtplugClientDevice} from 'buttplug';
+import buttplug from '../buttplug.mjs';
+import log from '../log.mjs';
+import {defineTag, invalidParameterError} from '../utils.mjs';
+import type JQuery from 'jquery';
 
-defineTag("buttplug_info", {
+defineTag('buttplug_info', {
 	start(pm: Record<string, string>) {
 		const params = Object.assign(
 			{
-				layer: "base",
-				x: "0",
-				y: "0",
-				width: "0",
-				height: "0",
+				layer: 'base',
+				x: '0',
+				y: '0',
+				width: '0',
+				height: '0',
 			},
 			pm,
 		);
 
-		log("buttplug_info:", params);
+		log('buttplug_info:', params);
 
 		const x = Number.parseInt(params.x);
 		if (Number.isNaN(x)) {
-			invalidParameterError(params, "x");
+			invalidParameterError(params, 'x');
 			return;
 		}
 
 		const y = Number.parseInt(params.y);
 		if (Number.isNaN(y)) {
-			invalidParameterError(params, "y");
+			invalidParameterError(params, 'y');
 			return;
 		}
 
 		const width = Number.parseInt(params.width);
 		if (Number.isNaN(width)) {
-			invalidParameterError(params, "width");
+			invalidParameterError(params, 'width');
 			return;
 		}
 
 		const height = Number.parseInt(params.height);
 		if (Number.isNaN(height)) {
-			invalidParameterError(params, "height");
+			invalidParameterError(params, 'height');
 			return;
 		}
 
 		const $layer: JQuery<HTMLDivElement> | undefined =
-			TYRANO.kag.layer.getLayer(params.layer, "fore");
-		log("layer:", $layer);
+			TYRANO.kag.layer.getLayer(params.layer, 'fore');
+		log('layer:', $layer);
 		if ($layer === undefined) {
-			invalidParameterError(params, "layer");
+			invalidParameterError(params, 'layer');
 			return;
 		}
 
@@ -57,15 +57,15 @@ defineTag("buttplug_info", {
 				'  <div class="buttplug__info_body">',
 				'    <div class="buttplug__info_status">',
 				'      接続状態: <span class="buttplug__info_status_text"></span>',
-				"    </div>",
+				'    </div>',
 				'    <div class="buttplug__info_device_count_statement">',
-				"      接続されているButtplugデバイス:",
+				'      接続されているButtplugデバイス:',
 				'      <span class="buttplug__info_device_count">0</span>',
-				"    </div>",
+				'    </div>',
 				'    <ul class="buttplug__info_devices"></ul>',
-				"  </div>",
-				"</div>",
-			].join(""),
+				'  </div>',
+				'</div>',
+			].join(''),
 		);
 		$info.css({
 			left: `${x}px`,
@@ -76,9 +76,9 @@ defineTag("buttplug_info", {
 
 		$layer.append($info);
 
-		const $status = $info.find(".buttplug__info_status_text");
-		const $deviceCount = $info.find(".buttplug__info_device_count");
-		const $devices = $info.find(".buttplug__info_devices");
+		const $status = $info.find('.buttplug__info_status_text');
+		const $deviceCount = $info.find('.buttplug__info_device_count');
+		const $devices = $info.find('.buttplug__info_devices');
 		const deviceMap = new Map<number, JQuery<HTMLElement>>();
 
 		const addDeviceToList = (device: ButtplugClientDevice) => {
@@ -101,7 +101,7 @@ defineTag("buttplug_info", {
 				featureNames.push(featureName);
 				actuatorCountMap.set(feature.ActuatorType, actuatorCount + 1);
 			}
-			$deviceFeatures.html(`<li>${featureNames.join(", ")}</li>`);
+			$deviceFeatures.html(`<li>${featureNames.join(', ')}</li>`);
 			$device.append($deviceFeatures);
 
 			$devices.append($device);
@@ -110,40 +110,40 @@ defineTag("buttplug_info", {
 		};
 
 		if (buttplug.connected) {
-			$status.text("接続中");
+			$status.text('接続中');
 		} else {
-			$status.text("未接続");
-			$status.addClass("buttplug__info_status_text_disconnected");
+			$status.text('未接続');
+			$status.addClass('buttplug__info_status_text_disconnected');
 		}
 
-		buttplug.on("disconnect", () => {
-			log("buttplug_info: disconnect");
-			$status.text("未接続");
-			$status.addClass("buttplug__info_status_text_disconnected");
-			$deviceCount.text("0");
+		buttplug.on('disconnect', () => {
+			log('buttplug_info: disconnect');
+			$status.text('未接続');
+			$status.addClass('buttplug__info_status_text_disconnected');
+			$deviceCount.text('0');
 			$devices.empty();
 			deviceMap.clear();
 		});
 
-		buttplug.on("connect", () => {
-			log("buttplug_info: connect");
-			$status.text("接続中");
-			$status.removeClass("buttplug__info_status_text_disconnected");
+		buttplug.on('connect', () => {
+			log('buttplug_info: connect');
+			$status.text('接続中');
+			$status.removeClass('buttplug__info_status_text_disconnected');
 		});
 
 		for (const device of buttplug.devices) {
-			log("device:", device);
+			log('device:', device);
 			addDeviceToList(device);
 		}
 
-		buttplug.on("deviceadded", (device: ButtplugClientDevice) => {
+		buttplug.on('deviceadded', (device: ButtplugClientDevice) => {
 			if (deviceMap.has(device.index)) {
 				return;
 			}
 			addDeviceToList(device);
 		});
 
-		buttplug.on("deviceremoved", (device: ButtplugClientDevice) => {
+		buttplug.on('deviceremoved', (device: ButtplugClientDevice) => {
 			const $device = deviceMap.get(device.index);
 			if ($device !== undefined) {
 				$device.remove();
@@ -153,9 +153,9 @@ defineTag("buttplug_info", {
 		});
 
 		try {
-			log("[buttplug_info] tag start:", pm);
+			log('[buttplug_info] tag start:', pm);
 		} catch (error) {
-			log("error:", error);
+			log('error:', error);
 		} finally {
 			TYRANO.kag.ftag.nextOrder();
 		}
