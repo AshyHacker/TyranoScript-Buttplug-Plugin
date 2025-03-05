@@ -9,7 +9,7 @@ class ButtplugManager {
 	#connector: ButtplugBrowserWebsocketClientConnector;
 
 	constructor() {
-		log('buttplug plugin loading...');
+		this.log('initializing...');
 
 		this.#client = new ButtplugClient('TyranoScript-Buttplug-Plugin');
 		this.#connector = new ButtplugBrowserWebsocketClientConnector(
@@ -17,18 +17,18 @@ class ButtplugManager {
 		);
 
 		this.#client.addListener('deviceadded', (device) => {
-			log('Device added:', device);
+			this.log('Device added:', device);
 		});
 
 		this.#client.addListener('deviceremoved', (device) => {
-			log('Device removed:', device);
+			this.log('Device removed:', device);
 		});
 
 		this.#client.addListener('disconnect', () => {
 			this.onDisconnected();
 		});
 
-		this.connect();
+		this.startConnectionLoop();
 	}
 
 	get connected() {
@@ -39,37 +39,41 @@ class ButtplugManager {
 		return this.#client.devices;
 	}
 
-	async onDisconnected() {
-		log('ButtplugManager: disconnected');
-
-		while (true) {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			log('ButtplugManager: trying to reconnect...');
-
-			try {
-				await this.connect();
-				break;
-			} catch (error) {
-				log('ButtplugManager: connection error:', error);
-			}
-		}
-	}
-
 	// biome-ignore lint/suspicious/noExplicitAny: event emitter
 	on(eventName: string, listener: (...args: any[]) => void) {
 		this.#client.addListener(eventName, listener);
 	}
 
-	async connect() {
-		await this.#client.connect(this.#connector);
-
-		log('ButtplugManager: connected');
-		this.#client.emit('connect');
-		await this.#client.startScanning();
+	// biome-ignore lint/suspicious/noExplicitAny: data
+	private log(text: string, data: any = null) {
+		log(`ButtplugManager: ${text}`, data);
 	}
 
-	startScanning() {
-		return this.#client.startScanning();
+	private async onDisconnected() {
+		this.log('disconnected');
+		await this.startConnectionLoop();
+	}
+
+	private async startConnectionLoop() {
+		while (true) {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			this.log('trying to connect...');
+
+			try {
+				await this.connect();
+				break;
+			} catch (error) {
+				this.log('connection error:', error);
+			}
+		}
+	}
+
+	private async connect() {
+		await this.#client.connect(this.#connector);
+
+		this.log('connected');
+		this.#client.emit('connect');
+		await this.#client.startScanning();
 	}
 }
 

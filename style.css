@@ -8,11 +8,22 @@
 	overflow: hidden;
 }
 
-ul.buttplug__info_devices {
+ul.buttplug__info_devices,
+ul.buttplug__info_devices ul {
 	list-style-type: square;
 	padding-left: 1em;
 }
 
-li.buttplug__info_device {
+li.buttplug__info_device,
+ul.buttplug__info_devices ul li {
 	margin: 0;
+}
+
+.buttplug__info_status_text {
+	font-weight: bold;
+	color: #a9cf52;
+}
+
+.buttplug__info_status_text.buttplug__info_status_text_disconnected {
+	color: #ffaabb;
 }
