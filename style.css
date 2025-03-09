@@ -9,6 +9,19 @@
 	pointer-events: auto;
 }
 
+.buttplug__info_websocket_address {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.buttplug__info_websocket_address .buttplug__info_websocket_address_label {
+	flex: 0 0 auto;
+}
+
+.buttplug__info_websocket_address .buttplug__info_websocket_address_input {
+	flex: 1 1 auto;
+}
+
 .buttplug__info_controls {
 	display: flex;
 	flex-wrap: wrap;

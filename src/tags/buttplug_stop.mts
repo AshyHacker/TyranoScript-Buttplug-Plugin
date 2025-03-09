@@ -24,6 +24,7 @@ defineTag('buttplug_stop', {
 			if (params.devices !== '') {
 				buttplugPatternController.stopPattern(params.devices);
 				if (buttplug.mode === 'webBluetooth') {
+					// Due to an instability in the Web Bluetooth API, we need to wait for a bit
 					log('waiting for 2 seconds...');
 					await new Promise((resolve) => setTimeout(resolve, 2000));
 				}

@@ -64,6 +64,10 @@ defineTag('buttplug_info', {
 				'      接続状態: <span class="buttplug__info_status_text"></span><br>',
 				'      接続先: <span class="buttplug__info_status_destination"></span>',
 				'    </div>',
+				'    <div class="buttplug__info_websocket_address">',
+				'      <span class="buttplug__info_websocket_address_label">Buttplugサーバーアドレス:</span>',
+				'      <input type="text" class="buttplug__info_websocket_address_input" value="ws://127.0.0.1:12345/buttplug">',
+				'    </div>',
 				'    <div class="buttplug__info_controls">',
 				'      <button class="buttplug__info_websocket_button">WebSocket で接続</button>',
 				'      <button class="buttplug__info_web_bluetooth_button">Web Bluetooth で接続 (非推奨)</button>',
@@ -86,8 +90,12 @@ defineTag('buttplug_info', {
 
 		$layer.append($info);
 
+		const $websocketAddressInput = $info.find(
+			'.buttplug__info_websocket_address_input',
+		);
 		const $status = $info.find('.buttplug__info_status_text');
 		const $statusDestination = $info.find('.buttplug__info_status_destination');
+		const $websocketButton = $info.find('.buttplug__info_websocket_button');
 		const $deviceCount = $info.find('.buttplug__info_device_count');
 		const $devices = $info.find('.buttplug__info_devices');
 		const $webBluetoothButton = $info.find(
@@ -184,6 +192,11 @@ defineTag('buttplug_info', {
 			$status.text('スキャン中⋯');
 			$status.removeClass('buttplug__info_status_text_disconnected');
 			$statusDestination.text('Web Bluetooth API');
+		});
+
+		$websocketButton.on('click', async () => {
+			const serverAddress = $websocketAddressInput.val() as string;
+			await buttplug.switchToWebSocket(serverAddress);
 		});
 
 		try {

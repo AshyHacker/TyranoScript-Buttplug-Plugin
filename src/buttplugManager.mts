@@ -26,10 +26,13 @@ export interface MotionCommand {
 	value?: number;
 }
 
+const DEFAULT_WEB_SOCKET_ADDRESS = 'ws://127.0.0.1:12345/buttplug';
+
 class ButtplugManager {
 	#client: ButtplugClient;
 	mode: 'websocket' | 'webBluetooth' = 'websocket';
 	websocketServerName: string | null = null;
+	#websocketServerAddress = DEFAULT_WEB_SOCKET_ADDRESS;
 	#websocketConnector: ButtplugBrowserWebsocketClientConnector;
 	#webBluetoothConnector: ButtplugWasmClientConnector | null = null;
 
@@ -47,7 +50,7 @@ class ButtplugManager {
 
 		this.#client = new ButtplugClient('TyranoScript-Buttplug-Plugin');
 		this.#websocketConnector = new ButtplugBrowserWebsocketClientConnector(
-			'ws://127.0.0.1:12345/buttplug',
+			this.#websocketServerAddress,
 		);
 
 		this.#client.addListener('deviceadded', (device) => {
@@ -187,6 +190,23 @@ class ButtplugManager {
 		this.log('scanning for devices...');
 		await this.#client.startScanning();
 		this.log('scanning started');
+	}
+
+	async switchToWebSocket(serverAddress = DEFAULT_WEB_SOCKET_ADDRESS) {
+		if (this.mode !== 'websocket') {
+			this.mode = 'websocket';
+		}
+		this.log('switching to WebSocket');
+		this.#websocketConnector = new ButtplugBrowserWebsocketClientConnector(
+			serverAddress,
+		);
+		if (this.#client.connected) {
+			this.log('disconnecting...');
+			await this.#client.disconnect();
+		} else {
+			this.log('connecting to WebSocket...');
+			await this.startConnectionLoop();
+		}
 	}
 
 	// biome-ignore lint/suspicious/noExplicitAny: data
