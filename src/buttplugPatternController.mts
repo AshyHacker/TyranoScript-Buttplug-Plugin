@@ -229,6 +229,26 @@ class ButtplugPatternController {
 			}
 		}
 	}
+
+	stopPattern(devicesString: string) {
+		this.log('stopPattern:', devicesString);
+
+		const matchingFeatures = getMatchingFeatures(
+			buttplug.devices,
+			devicesString,
+		);
+		this.log('matchingFeatures:', matchingFeatures);
+
+		for (const [device, messageType, actuatorIndexes] of matchingFeatures) {
+			for (const actuatorIndex of actuatorIndexes) {
+				this.#patternDataConfigurations.delete([
+					device,
+					messageType,
+					actuatorIndex,
+				]);
+			}
+		}
+	}
 }
 
 export default ButtplugPatternController.instance;
