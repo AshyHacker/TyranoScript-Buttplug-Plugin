@@ -1,6 +1,41 @@
-import {describe, it, expect} from 'vitest';
-import {MultiKeyMap} from './utils.mjs';
+import {describe, it, expect, beforeEach, beforeAll, vi} from 'vitest';
+import {MultiKeyMap, Tag, defineTag} from './utils.mjs';
 import {inspect} from 'node:util';
+
+// Mock global TYRANO object
+const TYRANO = {
+	kag: {
+		ftag: {
+			// biome-ignore lint/style/useNamingConvention: External library
+			master_tag: {} as Record<string, Tag>,
+			nextOrder: () => {},
+		},
+		error: (_message: string) => {},
+	},
+};
+
+beforeAll(() => {
+	vi.stubGlobal('TYRANO', TYRANO);
+});
+
+beforeEach(() => {
+	TYRANO.kag.ftag.master_tag = {};
+});
+
+describe('defineTag', () => {
+	it('should define a new tag', () => {
+		const tag = {start: () => {}, vital: [], pm: {}};
+		defineTag('new_tag', tag);
+		expect(TYRANO.kag.ftag.master_tag.new_tag).toBe(tag);
+	});
+
+	it('should not redefine an existing tag', () => {
+		const tag = {start: () => {}, vital: [], pm: {}};
+		TYRANO.kag.ftag.master_tag.existing_tag = tag;
+		defineTag('existing_tag', {start: () => {}, vital: [], pm: {}});
+		expect(TYRANO.kag.ftag.master_tag.existing_tag).toBe(tag);
+	});
+});
 
 describe('MultiKeyMap', () => {
 	it('should set and get values correctly', () => {

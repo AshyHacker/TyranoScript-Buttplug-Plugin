@@ -7,7 +7,7 @@ import log from './log.mjs';
 import {inspect} from 'node:util';
 
 type ValueOf<T> = T[keyof T];
-type Tag = ValueOf<typeof TYRANO.kag.ftag.master_tag>;
+export type Tag = ValueOf<typeof TYRANO.kag.ftag.master_tag>;
 
 function assert(condition: boolean, message?: string): asserts condition {
 	if (!condition) {
