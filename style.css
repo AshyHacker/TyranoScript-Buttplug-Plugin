@@ -5,7 +5,24 @@
 	padding: 1em;
 	box-sizing: border-box;
 	z-index: 1000;
-	overflow: hidden;
+	overflow-y: auto;
+	pointer-events: auto;
+}
+
+.buttplug__info_controls {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	margin: 0.5em 0;
+}
+
+.buttplug__info_controls button {
+	width: 48%;
+	padding: 0.5em;
+
+	background: transparent;
+	border: 1px solid white;
+	color: white;
 }
 
 ul.buttplug__info_devices,

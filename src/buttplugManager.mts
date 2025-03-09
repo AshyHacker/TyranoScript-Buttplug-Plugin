@@ -11,9 +11,12 @@ import {
 	ScalarSubcommand,
 	VectorSubcommand,
 	type ButtplugClientDevice,
+	RequestServerInfo,
+	MESSAGE_SPEC_VERSION,
 } from 'buttplug';
 import log from './log.mjs';
 import {getMatchingFeatures, assert, type MessageType} from './utils.mjs';
+import type {ButtplugWasmClientConnector} from 'buttplug-wasm/dist';
 
 export interface MotionCommand {
 	speed?: number;
@@ -25,7 +28,10 @@ export interface MotionCommand {
 
 class ButtplugManager {
 	#client: ButtplugClient;
-	#connector: ButtplugBrowserWebsocketClientConnector;
+	mode: 'websocket' | 'webBluetooth' = 'websocket';
+	websocketServerName: string | null = null;
+	#websocketConnector: ButtplugBrowserWebsocketClientConnector;
+	#webBluetoothConnector: ButtplugWasmClientConnector | null = null;
 
 	// singleton
 	static #instance: ButtplugManager | null = null;
@@ -40,7 +46,7 @@ class ButtplugManager {
 		this.log('initializing...');
 
 		this.#client = new ButtplugClient('TyranoScript-Buttplug-Plugin');
-		this.#connector = new ButtplugBrowserWebsocketClientConnector(
+		this.#websocketConnector = new ButtplugBrowserWebsocketClientConnector(
 			'ws://127.0.0.1:12345/buttplug',
 		);
 
@@ -58,6 +64,13 @@ class ButtplugManager {
 
 		ButtplugLogger.Logger.MaximumEventLogLevel = ButtplugLogLevel.Trace;
 		ButtplugLogger.Logger.addListener('log', (msg: LogMessage) => {
+			const matches: RegExpMatchArray | null = msg.Message.match(
+				/^ButtplugClient: Connected to Server (.*)/,
+			);
+			if (matches) {
+				this.websocketServerName = matches[1];
+			}
+
 			log(msg.Message, msg);
 		});
 
@@ -77,17 +90,20 @@ class ButtplugManager {
 		this.#client.addListener(eventName, listener);
 	}
 
-	sendCommandWithDevicesString(devicesString: string, command: MotionCommand) {
+	async sendCommandWithDevicesString(
+		devicesString: string,
+		command: MotionCommand,
+	) {
 		const matchingFeatures = getMatchingFeatures(
 			this.#client.devices,
 			devicesString,
 		);
 		this.log('matchingFeatures:', matchingFeatures);
 
-		this.sendCommand(matchingFeatures, command);
+		await this.sendCommand(matchingFeatures, command);
 	}
 
-	sendCommand(
+	async sendCommand(
 		devices: [ButtplugClientDevice, MessageType, number[]][],
 		command: MotionCommand,
 	) {
@@ -109,7 +125,7 @@ class ButtplugManager {
 						device.index,
 					);
 					this.log('sending message:', message);
-					device.send(message);
+					await device.send(message);
 					break;
 				}
 				case 'linear': {
@@ -120,7 +136,7 @@ class ButtplugManager {
 						device.index,
 					);
 					this.log('sending message:', message);
-					device.send(message);
+					await device.send(message);
 					break;
 				}
 				case 'scalar': {
@@ -135,7 +151,7 @@ class ButtplugManager {
 						device.index,
 					);
 					this.log('sending message:', message);
-					device.send(message);
+					await device.send(message);
 					break;
 				}
 				default: {
@@ -144,6 +160,33 @@ class ButtplugManager {
 				}
 			}
 		}
+	}
+
+	async switchToWebBluetooth() {
+		if (this.mode !== 'webBluetooth') {
+			this.mode = 'webBluetooth';
+			const {ButtplugWasmClientConnector: ButtplugWasmClientConnectorImpl} =
+				await import(
+					// @ts-expect-error: no types
+					'buttplug-wasm/dist/buttplug-wasm.mjs'
+				);
+
+			ButtplugWasmClientConnectorImpl.activateLogging();
+
+			this.log('switching to WebBluetooth');
+			if (this.#client.connected) {
+				this.log('disconnecting from Buttplug server...');
+				await this.#client.disconnect();
+			}
+			this.#webBluetoothConnector = new ButtplugWasmClientConnectorImpl();
+			this.log('connecting to WebBluetooth...');
+			assert(this.#webBluetoothConnector !== null);
+			await this.#client.connect(this.#webBluetoothConnector);
+			this.log('connected to WebBluetooth');
+		}
+		this.log('scanning for devices...');
+		await this.#client.startScanning();
+		this.log('scanning started');
 	}
 
 	// biome-ignore lint/suspicious/noExplicitAny: data
@@ -159,6 +202,10 @@ class ButtplugManager {
 	private async startConnectionLoop() {
 		while (true) {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
+			if (this.mode !== 'websocket') {
+				this.log('not in WebBluetooth mode. Quitting connection loop.');
+				break;
+			}
 			this.log('trying to connect...');
 
 			try {
@@ -171,7 +218,7 @@ class ButtplugManager {
 	}
 
 	private async connect() {
-		await this.#client.connect(this.#connector);
+		await this.#client.connect(this.#websocketConnector);
 
 		this.log('connected to Buttplug server');
 		this.#client.emit('connect');

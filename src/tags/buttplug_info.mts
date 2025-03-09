@@ -8,7 +8,7 @@ defineTag('buttplug_info', {
 	start(pm: Record<string, string>) {
 		const params = Object.assign(
 			{
-				layer: 'base',
+				layer: 'message0',
 				x: '0',
 				y: '0',
 				width: '0',
@@ -51,12 +51,22 @@ defineTag('buttplug_info', {
 			return;
 		}
 
+		$layer.css({
+			'z-index': 1000000,
+			'pointer-events': 'none',
+		});
+
 		const $info = $(
 			[
-				'<div class="buttplug__info">',
+				'<div class="buttplug__info event-setting-element">',
 				'  <div class="buttplug__info_body">',
 				'    <div class="buttplug__info_status">',
-				'      接続状態: <span class="buttplug__info_status_text"></span>',
+				'      接続状態: <span class="buttplug__info_status_text"></span><br>',
+				'      接続先: <span class="buttplug__info_status_destination"></span>',
+				'    </div>',
+				'    <div class="buttplug__info_controls">',
+				'      <button class="buttplug__info_websocket_button">WebSocket で接続</button>',
+				'      <button class="buttplug__info_web_bluetooth_button">Web Bluetooth で接続 (非推奨)</button>',
 				'    </div>',
 				'    <div class="buttplug__info_device_count_statement">',
 				'      接続されているButtplugデバイス:',
@@ -68,8 +78,8 @@ defineTag('buttplug_info', {
 			].join(''),
 		);
 		$info.css({
-			left: `${x}px`,
-			top: `${y}px`,
+			'margin-left': `${x}px`,
+			'margin-top': `${y}px`,
 			width: `${width}px`,
 			height: `${height}px`,
 		});
@@ -77,8 +87,12 @@ defineTag('buttplug_info', {
 		$layer.append($info);
 
 		const $status = $info.find('.buttplug__info_status_text');
+		const $statusDestination = $info.find('.buttplug__info_status_destination');
 		const $deviceCount = $info.find('.buttplug__info_device_count');
 		const $devices = $info.find('.buttplug__info_devices');
+		const $webBluetoothButton = $info.find(
+			'.buttplug__info_web_bluetooth_button',
+		);
 		const deviceMap = new Map<number, JQuery<HTMLElement>>();
 
 		const addDeviceToList = (device: ButtplugClientDevice) => {
@@ -111,6 +125,11 @@ defineTag('buttplug_info', {
 
 		if (buttplug.connected) {
 			$status.text('接続中');
+			$statusDestination.text(
+				buttplug.mode === 'webBluetooth'
+					? 'Web Bluetooth API'
+					: `WebSocket (${buttplug.websocketServerName})`,
+			);
 		} else {
 			$status.text('未接続');
 			$status.addClass('buttplug__info_status_text_disconnected');
@@ -120,6 +139,7 @@ defineTag('buttplug_info', {
 			log('buttplug_info: disconnect');
 			$status.text('未接続');
 			$status.addClass('buttplug__info_status_text_disconnected');
+			$statusDestination.text('');
 			$deviceCount.text('0');
 			$devices.empty();
 			deviceMap.clear();
@@ -128,6 +148,11 @@ defineTag('buttplug_info', {
 		buttplug.on('connect', () => {
 			log('buttplug_info: connect');
 			$status.text('接続中');
+			$statusDestination.text(
+				buttplug.mode === 'webBluetooth'
+					? 'Web Bluetooth API'
+					: `WebSocket (${buttplug.websocketServerName})`,
+			);
 			$status.removeClass('buttplug__info_status_text_disconnected');
 		});
 
@@ -152,6 +177,13 @@ defineTag('buttplug_info', {
 				deviceMap.delete(device.index);
 				$deviceCount.text(deviceMap.size);
 			}
+		});
+
+		$webBluetoothButton.on('click', async () => {
+			await buttplug.switchToWebBluetooth();
+			$status.text('スキャン中⋯');
+			$status.removeClass('buttplug__info_status_text_disconnected');
+			$statusDestination.text('Web Bluetooth API');
 		});
 
 		try {

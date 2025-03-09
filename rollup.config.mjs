@@ -8,6 +8,7 @@ import polyfillNode from 'rollup-plugin-polyfill-node';
 export default {
 	input: 'src/index.mts',
 	output: {
+		inlineDynamicImports: true,
 		file: 'dist/index.js',
 		format: 'cjs',
 	},

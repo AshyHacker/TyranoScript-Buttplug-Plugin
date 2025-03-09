@@ -9,7 +9,7 @@ const log = (msg: string, data: any = null) => {
 };
 
 defineTag('buttplug_stop', {
-	start(pm: Record<string, string>) {
+	async start(pm: Record<string, string>) {
 		try {
 			log('tag start:', pm);
 
@@ -22,6 +22,11 @@ defineTag('buttplug_stop', {
 			);
 
 			if (params.devices !== '') {
+				buttplugPatternController.stopPattern(params.devices);
+				if (buttplug.mode === 'webBluetooth') {
+					log('waiting for 2 seconds...');
+					await new Promise((resolve) => setTimeout(resolve, 2000));
+				}
 				buttplug.sendCommandWithDevicesString(params.devices, {
 					speed: 0,
 					clockwise: true,
@@ -29,7 +34,6 @@ defineTag('buttplug_stop', {
 					duration: 0,
 					value: 0,
 				});
-				buttplugPatternController.stopPattern(params.devices);
 			}
 		} catch (error) {
 			log('error:', error);

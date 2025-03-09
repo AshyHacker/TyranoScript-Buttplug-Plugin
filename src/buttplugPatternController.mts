@@ -188,10 +188,16 @@ class ButtplugPatternController {
 					actuatorIndex,
 					newStatus,
 				});
-				buttplug.sendCommand(
-					[[device, messageType, [actuatorIndex]]],
-					newStatus,
-				);
+				(async () => {
+					try {
+						await buttplug.sendCommand(
+							[[device, messageType, [actuatorIndex]]],
+							newStatus,
+						);
+					} catch (error) {
+						this.log('error:', error);
+					}
+				})();
 
 				this.#deviceStatuses.set(
 					[device, messageType, actuatorIndex],
