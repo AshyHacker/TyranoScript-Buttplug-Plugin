@@ -56,7 +56,7 @@ defineTag('buttplug_start', {
 			const clockwise = params.direction === '0';
 
 			if (params.devices !== '') {
-				buttplug.sendCommand(params.devices, {
+				buttplug.sendCommandWithDevicesString(params.devices, {
 					speed,
 					clockwise,
 					position,

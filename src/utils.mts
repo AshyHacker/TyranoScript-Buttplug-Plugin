@@ -39,7 +39,11 @@ export const invalidParameterError = (
 };
 
 // https://github.com/buttplugio/buttplug/blob/buttplug-9.0.7/buttplug/buttplug-device-config/device-config-v3/buttplug-device-config-schema-v3.json#L263
-export type MessageType = 'rotate' | 'linear' | 'scalar';
+export enum MessageType {
+	Rotate = 'rotate',
+	Linear = 'linear',
+	Scalar = 'scalar',
+}
 
 const ACTUATOR_STRING_REGEX =
 	/^(?<type>vibrate|rotate|oscillate|constrict|inflate|position)(?<index>\d*)$/;
@@ -145,13 +149,13 @@ export const getMatchingFeatures = (
 			};
 
 			const rotateCommands = device.messageAttributes.RotateCmd ?? [];
-			addMatchingFeatures(rotateCommands, 'rotate');
+			addMatchingFeatures(rotateCommands, MessageType.Rotate);
 
 			const linearCommands = device.messageAttributes.LinearCmd ?? [];
-			addMatchingFeatures(linearCommands, 'linear');
+			addMatchingFeatures(linearCommands, MessageType.Linear);
 
 			const scalarCommands = device.messageAttributes.ScalarCmd ?? [];
-			addMatchingFeatures(scalarCommands, 'scalar');
+			addMatchingFeatures(scalarCommands, MessageType.Scalar);
 		}
 	}
 

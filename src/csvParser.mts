@@ -1,6 +1,7 @@
 import Papa from 'papaparse';
 
 export interface PatternData {
+	length: number;
 	frames: {
 		timestamp: number;
 		values: number[];
@@ -42,5 +43,10 @@ export const parse = (csv: string): PatternData => {
 		});
 	}
 
-	return {frames};
+	frames.sort((a, b) => a.timestamp - b.timestamp);
+
+	return {
+		length: frames[frames.length - 1].timestamp,
+		frames,
+	};
 };

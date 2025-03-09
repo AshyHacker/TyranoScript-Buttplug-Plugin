@@ -10,9 +10,10 @@ import {
 	ScalarCmd,
 	ScalarSubcommand,
 	VectorSubcommand,
+	type ButtplugClientDevice,
 } from 'buttplug';
 import log from './log.mjs';
-import {getMatchingFeatures, assert} from './utils.mjs';
+import {getMatchingFeatures, assert, type MessageType} from './utils.mjs';
 
 export interface MotionCommand {
 	speed?: number;
@@ -76,20 +77,27 @@ class ButtplugManager {
 		this.#client.addListener(eventName, listener);
 	}
 
-	sendCommand(devicesString: string, command: MotionCommand) {
-		const speed = command.speed ?? 0;
-		const clockwise = command.clockwise ?? true;
-		const position = command.position ?? 0;
-		const duration = command.duration ?? 0;
-		const value = command.value ?? 0;
-
+	sendCommandWithDevicesString(devicesString: string, command: MotionCommand) {
 		const matchingFeatures = getMatchingFeatures(
 			this.#client.devices,
 			devicesString,
 		);
 		this.log('matchingFeatures:', matchingFeatures);
 
-		for (const [device, messageType, commandIndexes] of matchingFeatures) {
+		this.sendCommand(matchingFeatures, command);
+	}
+
+	sendCommand(
+		devices: [ButtplugClientDevice, MessageType, number[]][],
+		command: MotionCommand,
+	) {
+		const speed = command.speed ?? 0;
+		const clockwise = command.clockwise ?? true;
+		const position = command.position ?? 0;
+		const duration = command.duration ?? 0;
+		const value = command.value ?? 0;
+
+		for (const [device, messageType, commandIndexes] of devices) {
 			this.log('starting device:', device);
 
 			switch (messageType) {
