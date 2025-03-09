@@ -19,7 +19,7 @@ interface PatternDataConfiguration {
 
 interface RotateDeviceStatus {
 	type: MessageType.Rotate;
-	direction: boolean;
+	clockwise: boolean;
 	speed: number;
 }
 
@@ -41,7 +41,7 @@ type DeviceStatus =
 
 const getDefaultDeviceStatus = (messageType: MessageType): DeviceStatus => {
 	if (messageType === MessageType.Rotate) {
-		return {direction: true, speed: 0, type: MessageType.Rotate};
+		return {clockwise: true, speed: 0, type: MessageType.Rotate};
 	}
 	if (messageType === MessageType.Linear) {
 		return {position: 0, speed: 0, type: MessageType.Linear};
@@ -57,7 +57,7 @@ const isDeviceStatusEqual = (a: DeviceStatus, b: DeviceStatus): boolean => {
 		return false;
 	}
 	if (a.type === MessageType.Rotate && b.type === MessageType.Rotate) {
-		return a.direction === b.direction && a.speed === b.speed;
+		return a.clockwise === b.clockwise && a.speed === b.speed;
 	}
 	if (a.type === MessageType.Linear && b.type === MessageType.Linear) {
 		return a.position === b.position && a.speed === b.speed;
@@ -81,9 +81,9 @@ const parseValues = (
 				log(`Insufficient values for rotate at frame ${frameIndex}`, values);
 				continue;
 			}
-			const [direction, speed] = valueChunk;
+			const [clockwise, speed] = valueChunk;
 			result.push({
-				direction: direction === 0,
+				clockwise: clockwise === 0,
 				speed: speed / 100,
 				type: MessageType.Rotate,
 			});

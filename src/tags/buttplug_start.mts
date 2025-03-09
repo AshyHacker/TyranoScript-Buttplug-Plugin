@@ -43,7 +43,7 @@ defineTag('buttplug_start', {
 				return;
 			}
 
-			const speed = Number.parseFloat(params.speed);
+			const speed = Number.parseFloat(params.speed) / 100;
 			if (Number.isNaN(speed) || speed < 0) {
 				invalidParameterError(params, 'speed');
 				return;
