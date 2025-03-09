@@ -7,7 +7,8 @@
 	"scripts": {
 		"build": "rollup -c",
 		"lint": "biome lint --fix",
-		"format": "biome format --fix"
+		"format": "biome format --fix",
+		"test": "vitest"
 	},
 	"keywords": [],
 	"author": "",
@@ -15,6 +16,7 @@
 	"description": "",
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"@rollup/plugin-alias": "^5.1.1",
 		"@rollup/plugin-commonjs": "^28.0.2",
 		"@rollup/plugin-node-resolve": "^16.0.0",
 		"@rollup/plugin-typescript": "^12.1.2",
@@ -23,10 +25,10 @@
 		"buttplug": "^3.2.2",
 		"papaparse": "^5.5.2",
 		"rollup": "^4.34.9",
-		"rollup-plugin-node-builtins": "^2.1.2",
-		"rollup-plugin-node-globals": "^1.4.0",
+		"rollup-plugin-polyfill-node": "^0.13.0",
 		"tslib": "^2.8.1",
 		"typescript": "^5.8.2",
-		"tyrano_voicevox_plugin": "github:Ouvill/tyrano_voicevox_plugin"
+		"tyrano_voicevox_plugin": "github:Ouvill/tyrano_voicevox_plugin",
+		"vitest": "^3.0.8"
 	}
 }

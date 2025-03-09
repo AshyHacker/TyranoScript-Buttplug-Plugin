@@ -4,6 +4,7 @@ import {
 	type GenericDeviceMessageAttributes,
 } from 'buttplug';
 import log from './log.mjs';
+import {inspect} from 'node:util';
 
 type ValueOf<T> = T[keyof T];
 type Tag = ValueOf<typeof TYRANO.kag.ftag.master_tag>;
@@ -229,5 +230,9 @@ export class MultiKeyMap<K extends readonly unknown[], V> {
 
 	get size(): number {
 		return this.#size;
+	}
+
+	[Symbol.for('nodejs.util.inspect.custom')]() {
+		return `MultiKeyMap(${this.size}) { ${inspect(this.#map)} }`;
 	}
 }
