@@ -162,9 +162,17 @@ type RecursiveMap<K extends readonly unknown[], V> = Map<
 	K[number],
 	RecursiveMap<K, V> | V
 >;
-export class MultiKeyMap<K extends readonly unknown[], V> {
+export class MultiKeyMap<K extends unknown[], V> {
 	#map: RecursiveMap<K, V> = new Map();
 	#size = 0;
+
+	constructor(initialEntries?: Iterable<[K, V]>) {
+		if (initialEntries !== undefined) {
+			for (const [keys, value] of initialEntries) {
+				this.set(keys, value);
+			}
+		}
+	}
 
 	get(keys: K): V | undefined {
 		let map = this.#map;
@@ -230,6 +238,28 @@ export class MultiKeyMap<K extends readonly unknown[], V> {
 
 	get size(): number {
 		return this.#size;
+	}
+
+	entries(): Iterable<[K, V]> {
+		const stack: [Map<unknown, unknown>, K][] = [
+			[this.#map, [] as unknown[] as K],
+		];
+		return {
+			*[Symbol.iterator]() {
+				while (stack.length > 0) {
+					const mapInfo = stack.pop();
+					assert(mapInfo !== undefined);
+					const [map, keys] = mapInfo;
+					for (const [key, value] of map) {
+						if (value instanceof Map) {
+							stack.push([value, [...keys, key] as K]);
+						} else {
+							yield [[...keys, key], value] as [K, V];
+						}
+					}
+				}
+			},
+		};
 	}
 
 	[Symbol.for('nodejs.util.inspect.custom')]() {

@@ -39,7 +39,7 @@ describe('defineTag', () => {
 
 describe('MultiKeyMap', () => {
 	it('should set and get values correctly', () => {
-		const map = new MultiKeyMap<readonly [string, string], number>();
+		const map = new MultiKeyMap<[string, string], number>();
 		map.set(['key1', 'key2'], 42);
 		map.set(['key1', 'key3'], 43);
 		map.set(['key1', 'key4'], 44);
@@ -54,7 +54,7 @@ describe('MultiKeyMap', () => {
 
 	it('should support arbitrary length keys', () => {
 		const map = new MultiKeyMap<
-			readonly [
+			[
 				string,
 				string,
 				string,
@@ -100,31 +100,31 @@ describe('MultiKeyMap', () => {
 	});
 
 	it('should return undefined for non-existent keys', () => {
-		const map = new MultiKeyMap<readonly [string, string], number>();
+		const map = new MultiKeyMap<[string, string], number>();
 		expect(map.get(['non', 'existent'])).toBeUndefined();
 	});
 
 	it('should overwrite existing keys', () => {
-		const map = new MultiKeyMap<readonly [string, string], number>();
+		const map = new MultiKeyMap<[string, string], number>();
 		map.set(['key1', 'key2'], 42);
 		map.set(['key1', 'key2'], 43);
 		expect(map.get(['key1', 'key2'])).toBe(43);
 	});
 
 	it('should delete keys correctly', () => {
-		const map = new MultiKeyMap<readonly [string, string], number>();
+		const map = new MultiKeyMap<[string, string], number>();
 		map.set(['key1', 'key2'], 42);
 		expect(map.delete(['key1', 'key2'])).toBe(true);
 		expect(map.get(['key1', 'key2'])).toBeUndefined();
 	});
 
 	it('should return false when deleting non-existent keys', () => {
-		const map = new MultiKeyMap<readonly [string, string], number>();
+		const map = new MultiKeyMap<[string, string], number>();
 		expect(map.delete(['non', 'existent'])).toBe(false);
 	});
 
 	it('should update size correctly', () => {
-		const map = new MultiKeyMap<readonly [string, string], number>();
+		const map = new MultiKeyMap<[string, string], number>();
 		expect(map.size).toBe(0);
 
 		map.set(['key1', 'key2'], 42);
@@ -139,13 +139,45 @@ describe('MultiKeyMap', () => {
 	});
 
 	it('supports multiple keys with different types', () => {
-		const map = new MultiKeyMap<readonly [string, number], number>();
+		const map = new MultiKeyMap<[string, number], number>();
 		map.set(['key1', 1], 42);
 		expect(map.get(['key1', 1])).toBe(42);
 	});
 
+	it('should support initializing with an iterable', () => {
+		const map = new MultiKeyMap<[string, string], number>([
+			[['key1', 'key2'], 42],
+			[['key1', 'key3'], 43],
+			[['key1', 'key4'], 44],
+			[['key2', 'key3'], 45],
+			[['key2', 'key4'], 46],
+		]);
+		expect(map.get(['key1', 'key2'])).toBe(42);
+		expect(map.get(['key1', 'key3'])).toBe(43);
+		expect(map.get(['key1', 'key4'])).toBe(44);
+		expect(map.get(['key2', 'key3'])).toBe(45);
+		expect(map.get(['key2', 'key4'])).toBe(46);
+	});
+
+	it('should iterate over entries correctly', () => {
+		const map = new MultiKeyMap<[string, string], number>();
+		map.set(['key1', 'key2'], 42);
+		map.set(['key1', 'key3'], 43);
+		map.set(['key1', 'key4'], 44);
+		map.set(['key2', 'key3'], 45);
+		map.set(['key2', 'key4'], 46);
+
+		const entries = Array.from(map.entries());
+		expect(entries).toHaveLength(5);
+		expect(entries).toContainEqual([['key1', 'key2'], 42]);
+		expect(entries).toContainEqual([['key1', 'key3'], 43]);
+		expect(entries).toContainEqual([['key1', 'key4'], 44]);
+		expect(entries).toContainEqual([['key2', 'key3'], 45]);
+		expect(entries).toContainEqual([['key2', 'key4'], 46]);
+	});
+
 	it('should print the map correctly', () => {
-		const map = new MultiKeyMap<readonly [string, string], number>();
+		const map = new MultiKeyMap<[string, string], number>();
 		map.set(['key1', 'key2'], 42);
 		expect(inspect(map)).toBe(
 			"MultiKeyMap(1) { Map(1) { 'key1' => Map(1) { 'key2' => 42 } } }",
