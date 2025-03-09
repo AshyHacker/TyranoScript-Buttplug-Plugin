@@ -57,8 +57,6 @@ class ButtplugPatternController {
 				);
 			}
 		}
-
-		this.log('patternDataConfigurations:', this.#patternDataConfigurations);
 	}
 }
 

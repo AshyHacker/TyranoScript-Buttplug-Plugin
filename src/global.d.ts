@@ -7,6 +7,5 @@ declare global {
 			loadText(filePath: string, callback: (text: string) => void): void;
 		};
 	}
-	var TYRANO: typeof window.TYRANO;
 	var $: string;
 }
