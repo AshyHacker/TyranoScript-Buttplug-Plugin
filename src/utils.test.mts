@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeEach, beforeAll, vi} from 'vitest';
-import {MultiKeyMap, type Tag, defineTag} from './utils.mjs';
+import {MultiKeyMap, type Tag, binarySearch, defineTag} from './utils.mjs';
 import {inspect} from 'node:util';
 
 // Mock global TYRANO object
@@ -99,6 +99,14 @@ describe('MultiKeyMap', () => {
 		).toBe(42);
 	});
 
+	it('should return true for existing keys', () => {
+		const map = new MultiKeyMap<[string, string], number>();
+		map.set(['key1', 'key2'], 42);
+		expect(map.has(['key1', 'key2'])).toBe(true);
+		expect(map.has(['key1', 'key3'])).toBe(false);
+		expect(map.has(['key2', 'key2'])).toBe(false);
+	});
+
 	it('should return undefined for non-existent keys', () => {
 		const map = new MultiKeyMap<[string, string], number>();
 		expect(map.get(['non', 'existent'])).toBeUndefined();
@@ -187,5 +195,31 @@ describe('MultiKeyMap', () => {
 		expect(inspect(map)).toBe(
 			"MultiKeyMap(2) { Map(1) { 'key1' => Map(2) { 'key2' => 42, 'key3' => 43 } } }",
 		);
+	});
+});
+
+describe('binarySearch', () => {
+	it('should return the correct index for a value in the middle', () => {
+		const values = [10, 20, 30, 40, 50];
+		const index = binarySearch(values, (value) => value > 25);
+		expect(index).toBe(2);
+	});
+
+	it('should return the correct index for a value at the start', () => {
+		const values = [10, 20, 30, 40, 50];
+		const index = binarySearch(values, (value) => value > 5);
+		expect(index).toBe(0);
+	});
+
+	it('should return the correct index for a value at the end', () => {
+		const values = [10, 20, 30, 40, 50];
+		const index = binarySearch(values, (value) => value > 45);
+		expect(index).toBe(4);
+	});
+
+	it('should return the correct index for a value not in the array', () => {
+		const values = [10, 20, 30, 40, 50];
+		const index = binarySearch(values, (value) => value > 100);
+		expect(index).toBe(null);
 	});
 });

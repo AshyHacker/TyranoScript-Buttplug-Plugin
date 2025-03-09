@@ -189,6 +189,21 @@ export class MultiKeyMap<K extends unknown[], V> {
 		return undefined;
 	}
 
+	has(keys: K): boolean {
+		let map = this.#map;
+		for (const key of keys) {
+			const nextMap = map.get(key);
+			if (nextMap === undefined) {
+				return false;
+			}
+			if (!(nextMap instanceof Map)) {
+				return true;
+			}
+			map = nextMap;
+		}
+		return false;
+	}
+
 	set(keys: K, value: V): void {
 		let map = this.#map;
 		for (const key of keys.slice(0, -1)) {
@@ -266,3 +281,25 @@ export class MultiKeyMap<K extends unknown[], V> {
 		return `MultiKeyMap(${this.size}) { ${inspect(this.#map)} }`;
 	}
 }
+
+// Returns index of the first element in the array that satisfies the test function
+// biome-ignore lint/complexity/noUselessTypeConstraint: Format issue
+export const binarySearch = <T extends unknown>(
+	array: T[],
+	test: (element: T) => boolean,
+): number | null => {
+	let low = 0;
+	let high = array.length;
+
+	while (low < high) {
+		const mid = (low + high) >>> 1;
+		const result = test(array[mid]);
+		if (result) {
+			high = mid;
+		} else {
+			low = mid + 1;
+		}
+	}
+
+	return low < array.length ? low : null;
+};
