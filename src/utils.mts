@@ -5,6 +5,7 @@ import {
 } from 'buttplug';
 import log from './log.mjs';
 import {inspect} from 'node:util';
+import {get} from 'jquery';
 
 type ValueOf<T> = T[keyof T];
 export type Tag = ValueOf<typeof TYRANO.kag.ftag.master_tag>;
@@ -73,6 +74,30 @@ const actuatorStringToActuatorType = (specification: string): ActuatorType => {
 	}
 };
 
+const specialDeviceNames = new Set(
+	['all', 'ungrouped'].flatMap((s) => [
+		s,
+		`${s}_vibrate`,
+		`${s}_rotate`,
+		`${s}_oscillate`,
+		`${s}_constrict`,
+		`${s}_inflate`,
+		`${s}_position`,
+	]),
+);
+
+const allDeviceSpecifications = new Map([
+	['all_vibrate', ActuatorType.Vibrate],
+	['all_rotate', ActuatorType.Rotate],
+	['all_oscillate', ActuatorType.Oscillate],
+	['all_constrict', ActuatorType.Constrict],
+	['all_inflate', ActuatorType.Inflate],
+	['all_position', ActuatorType.Position],
+]);
+
+const normalizeDeviceName = (name: string) =>
+	name.toLowerCase().replace(/\s/g, '');
+
 const parseDeviceString = (deviceString: string) => {
 	const deviceSpecifications: DeviceSpecification[] = [];
 	for (const deviceStringUnit of deviceString.split(',')) {
@@ -82,28 +107,62 @@ const parseDeviceString = (deviceString: string) => {
 		}
 
 		const [name, actuatorString = null] = trimmed.split(':');
+		const normalizedName = normalizeDeviceName(name);
 		if (actuatorString) {
-			const matches = actuatorString.match(ACTUATOR_STRING_REGEX);
-			if (matches) {
-				const actuatorTypeString = matches.groups?.type;
-				const actuatorIndex = matches.groups?.index
-					? Number.parseInt(matches.groups.index)
-					: null;
-				deviceSpecifications.push({
-					name,
-					actuatorType: actuatorTypeString
-						? actuatorStringToActuatorType(actuatorTypeString)
-						: null,
-					actuatorIndex,
-				});
-				continue;
+			if (specialDeviceNames.has(normalizedName)) {
+				TYRANO.kag.error(
+					`「${normalizedName}」は特別なデバイス名です。アクチュエーターの指定はできません`,
+					{},
+				);
+			} else {
+				const matches = actuatorString.match(ACTUATOR_STRING_REGEX);
+				if (matches) {
+					const actuatorTypeString = matches.groups?.type;
+					const actuatorIndex = matches.groups?.index
+						? Number.parseInt(matches.groups.index)
+						: null;
+					deviceSpecifications.push({
+						name: normalizedName,
+						actuatorType: actuatorTypeString
+							? actuatorStringToActuatorType(actuatorTypeString)
+							: null,
+						actuatorIndex,
+					});
+					continue;
+				}
+
+				TYRANO.kag.error(
+					`「${actuatorString}」は不正なアクチュエーターの指定です`,
+					{},
+				);
 			}
 		}
 
-		deviceSpecifications.push({name, actuatorType: null, actuatorIndex: null});
+		deviceSpecifications.push({
+			name: normalizedName,
+			actuatorType: null,
+			actuatorIndex: null,
+		});
 	}
 
 	return deviceSpecifications;
+};
+
+const getMatchingDevice = (
+	devices: ButtplugClientDevice[],
+	deviceSpecification: DeviceSpecification,
+) => {
+	const normalizedDeviceName = normalizeDeviceName(deviceSpecification.name);
+	return devices.filter((d) => {
+		if (
+			normalizedDeviceName === 'all' ||
+			allDeviceSpecifications.has(normalizedDeviceName)
+		) {
+			return true;
+		}
+
+		return normalizeDeviceName(d.name) === normalizedDeviceName;
+	});
 };
 
 export const getMatchingFeatures = (
@@ -114,13 +173,7 @@ export const getMatchingFeatures = (
 	const matchingFeatures: [ButtplugClientDevice, MessageType, number[]][] = [];
 
 	for (const deviceSpecification of deviceSpecifications) {
-		const matchingDevices = devices.filter((d) => {
-			const normalizedDeviceName1 = d.name.toLowerCase().replace(/\s/g, '');
-			const normalizedDeviceName2 = deviceSpecification.name
-				.toLowerCase()
-				.replace(/\s/g, '');
-			return normalizedDeviceName1 === normalizedDeviceName2;
-		});
+		const matchingDevices = getMatchingDevice(devices, deviceSpecification);
 
 		for (const device of matchingDevices) {
 			const actuatorTypeCountMap = new Map<ActuatorType, number>();
@@ -134,6 +187,17 @@ export const getMatchingFeatures = (
 					const actuatorType = attribute.ActuatorType;
 					const count = actuatorTypeCountMap.get(actuatorType) ?? 0;
 					actuatorTypeCountMap.set(actuatorType, count + 1);
+
+					const allDeviceSpecification = allDeviceSpecifications.get(
+						deviceSpecification.name,
+					);
+					if (allDeviceSpecification !== undefined) {
+						if (allDeviceSpecification === actuatorType) {
+							acutatorIndexes.push(attribute.Index);
+						}
+						continue;
+					}
+
 					if (
 						deviceSpecification.actuatorType === null ||
 						(deviceSpecification.actuatorType === actuatorType &&

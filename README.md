@@ -16,12 +16,12 @@
 ; 複数デバイスを指定する
 [buttplug_start devices="Vorze UFO SA,Vorze UFO TW" speed="20" direction="1"]
 
-; デバイスが複数のfeatureを持つ場合、「:」を用いて特定のfeatureを指定することができます
-; 「:」の後に数字を記述すると、その数字に対応するfeatureが選択されます
+; デバイスが複数のアクチュエータを持つ場合、「:」を用いて特定のアクチュエータを指定することができます
+; 「:」の後に数字を記述すると、その数字に対応するアクチュエータが選択されます
 [buttplug_start devices="Vorze UFO TW:1" speed="20" direction="1"]
-; 「:」の後に動作の名称を記述すると、その名称に対応するfeatureが選択されます
+; 「:」の後に動作の名称を記述すると、その名称に対応するアクチュエータが選択されます
 [buttplug_start devices="Vorze UFO TW:rotate" speed="20" direction="1"]
-; 上の2つを組み合わせると、特定の種類の特定のfeatureを指定できます
+; 上の2つを組み合わせると、特定の種類の特定のアクチュエータを指定できます
 [buttplug_start devices="Vorze UFO TW:rotate1" speed="20" direction="1"]
 
 
@@ -86,7 +86,7 @@
 
 ### 特殊なデバイス名
 
-以下の特殊なデバイス名を指定することで、特定のデバイスを指定することができます。なお、これらのデバイス名に対する「:」を用いた feature の指定は無効です。
+以下の特殊なデバイス名を指定することで、特定のデバイスを指定することができます。なお、これらのデバイス名に対する「:」を用いたアクチュエータの指定は無効です。
 
 - `ungrouped_xxx`: `xxx` の動作を行うデバイスのうち、いずれのグループにも属していないデバイスを指定します。以下の値が有効です。
   - `ungrouped_vibrate` `ungrouped_rotate` `ungrouped_oscillate` `ungrouped_constrict` `ungrouped_inflate` `ungrouped_position`
