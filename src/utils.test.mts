@@ -1,5 +1,5 @@
 import {describe, it, expect, beforeEach, beforeAll, vi} from 'vitest';
-import {MultiKeyMap, Tag, defineTag} from './utils.mjs';
+import {MultiKeyMap, type Tag, defineTag} from './utils.mjs';
 import {inspect} from 'node:util';
 
 // Mock global TYRANO object

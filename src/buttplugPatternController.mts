@@ -1,12 +1,8 @@
-import type { ButtplugClientDevice, } from "buttplug";
-import type { PatternData } from "./csvParser.mjs";
-import log from "./log.mjs";
-import {
-	getMatchingFeatures,
-	type MessageType,
-	MultiKeyMap,
-} from "./utils.mjs";
-import buttplug from "./buttplugManager.mjs";
+import type {ButtplugClientDevice} from 'buttplug';
+import type {PatternData} from './csvParser.mjs';
+import log from './log.mjs';
+import {getMatchingFeatures, type MessageType, MultiKeyMap} from './utils.mjs';
+import buttplug from './buttplugManager.mjs';
 
 interface PatternDataConfiguration {
 	patternData: PatternData;
@@ -30,7 +26,7 @@ class ButtplugPatternController {
 	> = new MultiKeyMap();
 
 	constructor() {
-		this.log("initialized");
+		this.log('initialized');
 		setInterval(this.onTick, 10);
 	}
 
@@ -45,24 +41,24 @@ class ButtplugPatternController {
 
 	startPattern(devicesString: string, patternData: PatternData, loop: boolean) {
 		const now = Date.now();
-		this.log("startPattern:", { devicesString, patternData, loop });
+		this.log('startPattern:', {devicesString, patternData, loop});
 
 		const matchingFeatures = getMatchingFeatures(
 			buttplug.devices,
 			devicesString,
 		);
-		this.log("matchingFeatures:", matchingFeatures);
+		this.log('matchingFeatures:', matchingFeatures);
 
 		for (const [device, messageType, actuatorIndexes] of matchingFeatures) {
 			for (const actuatorIndex of actuatorIndexes) {
 				this.#patternDataConfigurations.set(
 					[device, messageType, actuatorIndex],
-					{ patternData, startTime: now, loop },
+					{patternData, startTime: now, loop},
 				);
 			}
 		}
 
-		this.log("patternDataConfigurations:", this.#patternDataConfigurations);
+		this.log('patternDataConfigurations:', this.#patternDataConfigurations);
 	}
 }
 
