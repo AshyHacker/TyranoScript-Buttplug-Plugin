@@ -43,7 +43,7 @@ export type MessageType = 'rotate' | 'linear' | 'scalar';
 const ACTUATOR_STRING_REGEX =
 	/^(?<type>vibrate|rotate|oscillate|constrict|inflate|position)(?<index>\d*)$/;
 
-interface DeviceSpecification {
+export interface DeviceSpecification {
 	name: string;
 	actuatorType: ActuatorType | null;
 	actuatorIndex: number | null;
@@ -156,3 +156,78 @@ export const getMatchingFeatures = (
 
 	return matchingFeatures;
 };
+
+type RecursiveMap<K extends readonly unknown[], V> = Map<
+	K[number],
+	RecursiveMap<K, V> | V
+>;
+export class MultiKeyMap<K extends readonly unknown[], V> {
+	#map: RecursiveMap<K, V> = new Map();
+	#size = 0;
+
+	get(keys: K): V | undefined {
+		let map = this.#map;
+		for (const key of keys) {
+			const nextMap = map.get(key);
+			if (nextMap === undefined) {
+				return undefined;
+			}
+			if (!(nextMap instanceof Map)) {
+				return nextMap;
+			}
+			map = nextMap;
+		}
+		return undefined;
+	}
+
+	set(keys: K, value: V): void {
+		let map = this.#map;
+		for (const key of keys.slice(0, -1)) {
+			let nextMap = map.get(key);
+			if (nextMap === undefined) {
+				nextMap = new Map();
+				map.set(key, nextMap);
+			} else if (!(nextMap instanceof Map)) {
+				throw new Error('Invalid state');
+			}
+			map = nextMap;
+		}
+		if (!map.has(keys[keys.length - 1])) {
+			this.#size++;
+		}
+		map.set(keys[keys.length - 1], value);
+	}
+
+	delete(keys: K): boolean {
+		let map = this.#map;
+		const stack: [Map<unknown, unknown>, unknown][] = [];
+		for (const key of keys) {
+			const nextMap = map.get(key);
+			if (nextMap === undefined) {
+				return false;
+			}
+			stack.push([map, key]);
+			if (!(nextMap instanceof Map)) {
+				break;
+			}
+			map = nextMap;
+		}
+
+		while (stack.length > 0) {
+			const mapInfo = stack.pop();
+			assert(mapInfo !== undefined);
+			const [map, key] = mapInfo;
+			map.delete(key);
+			if (map.size > 0) {
+				break;
+			}
+		}
+
+		this.#size--;
+		return true;
+	}
+
+	get size(): number {
+		return this.#size;
+	}
+}
