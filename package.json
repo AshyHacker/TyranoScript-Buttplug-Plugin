@@ -22,7 +22,7 @@
 		"@rollup/plugin-typescript": "^12.3.0",
 		"@types/jquery": "^3.5.33",
 		"@types/lodash-es": "^4.17.12",
-		"@types/papaparse": "^5.3.16",
+		"@types/papaparse": "^5.5.0",
 		"buttplug": "^3.2.2",
 		"buttplug-wasm": "^2.0.1",
 		"lodash-es": "^4.17.21",
