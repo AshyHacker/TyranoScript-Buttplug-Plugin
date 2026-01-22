@@ -25,7 +25,7 @@
 		"@types/papaparse": "^5.5.2",
 		"buttplug": "^3.2.2",
 		"buttplug-wasm": "^2.0.1",
-		"lodash-es": "^4.17.22",
+		"lodash-es": "^4.17.23",
 		"papaparse": "^5.5.3",
 		"rollup": "^4.55.3",
 		"rollup-plugin-polyfill-node": "^0.13.0",
